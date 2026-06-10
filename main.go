@@ -1,15 +1,17 @@
 package main
 
 import (
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
-	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/glebarez/sqlite"
+	"github.com/go-faker/faker/v4"
 	"gorm.io/gorm"
 )
 
@@ -17,6 +19,7 @@ import (
 type Paste struct {
 	gorm.Model
 	Content string `gorm:"type:text"`
+	Slug    string `gorm:"uniqueIndex"`
 }
 
 var db *gorm.DB
@@ -39,6 +42,21 @@ func initDB() {
 
 	// Automatically migrate the schema
 	db.AutoMigrate(&Paste{})
+}
+
+func generateUniqueSlug() string {
+	for {
+		slug := fmt.Sprintf("%s-%s-%s",
+			strings.ToLower(faker.Word()),
+			strings.ToLower(faker.Word()),
+			strings.ToLower(faker.Word()))
+
+		var count int64
+		db.Model(&Paste{}).Where("slug = ?", slug).Count(&count)
+		if count == 0 {
+			return slug
+		}
+	}
 }
 
 func main() {
@@ -67,14 +85,19 @@ func main() {
 			return
 		}
 
-		paste := Paste{Content: content}
+		slug := generateUniqueSlug()
+		paste := Paste{
+			Content: content,
+			Slug:    slug,
+		}
+
 		result := db.Create(&paste)
 		if result.Error != nil {
 			c.String(http.StatusInternalServerError, "Error saving paste")
 			return
 		}
 
-		c.Redirect(http.StatusSeeOther, "/view/"+strconv.FormatUint(uint64(paste.ID), 10))
+		c.Redirect(http.StatusSeeOther, "/view/"+slug)
 	})
 
 	r.GET("/recent", func(c *gin.Context) {
@@ -87,10 +110,10 @@ func main() {
 		})
 	})
 
-	r.GET("/view/:id", func(c *gin.Context) {
-		id := c.Param("id")
+	r.GET("/view/:slug", func(c *gin.Context) {
+		slug := c.Param("slug")
 		var paste Paste
-		if err := db.First(&paste, id).Error; err != nil {
+		if err := db.Where("slug = ?", slug).First(&paste).Error; err != nil {
 			c.String(http.StatusNotFound, "Paste not found")
 			return
 		}
