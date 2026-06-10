@@ -22,7 +22,6 @@ WORKDIR /app
 COPY --from=builder /app/main .
 
 # Copy the static assets and templates
-COPY content ./content
 COPY templates ./templates
 COPY static ./static
 

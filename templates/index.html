@@ -1,0 +1,12 @@
+{{ define "content" }}
+<h2>New Paste</h2>
+<form action="/save" method="POST">
+    <textarea
+        name="content"
+        rows="20"
+        placeholder="Enter your text here..."
+    ></textarea>
+    <br />
+    <button type="submit">Save</button>
+</form>
+{{ end }}

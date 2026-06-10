@@ -1,0 +1,10 @@
+{{ define "content" }}
+<h2>View Paste #{{ .Paste.ID }}</h2>
+<p>
+    <small
+        >Created at: {{ .Paste.CreatedAt.Format "2006-01-02 15:04:05" }}</small
+    >
+</p>
+<pre>{{ .Paste.Content }}</pre>
+<p><a href="/recent">← Back to Recent Saves</a></p>
+{{ end }}

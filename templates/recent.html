@@ -1,0 +1,18 @@
+{{ define "content" }}
+<h2>Recent Saves</h2>
+{{ if .Pastes }}
+<ul>
+    {{ range .Pastes }}
+    <li>
+        <a href="/view/{{ .ID }}">Paste #{{ .ID }}</a> -
+        <small>{{ .CreatedAt.Format "2006-01-02 15:04:05" }}</small>
+        <p style="color: #666; font-size: 0.9em; margin: 5px 0 15px 0">
+            {{ printf "%.100s" .Content }}{{ if gt (len .Content) 100 }}...{{
+            end }}
+        </p>
+    </li>
+    {{ end }}
+</ul>
+{{ else }}
+<p>No pastes yet. <a href="/">Create one!</a></p>
+{{ end }} {{ end }}

@@ -31,3 +31,11 @@ Thumbs.db
 .env
 .env.local
 .env.*.local
+
+# Database
+db/
+data/
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
