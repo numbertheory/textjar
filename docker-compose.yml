@@ -4,8 +4,10 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ./db:/app/db
+      - textjar-data:/app/db
       - ./templates:/app/templates
       - ./static:/app/static
     environment:
       - GIN_MODE=release
+volumes:
+  textjar-data:
