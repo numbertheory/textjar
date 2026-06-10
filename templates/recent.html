@@ -8,8 +8,8 @@
 
         <small>{{ .CreatedAt.Format "2006-01-02 15:04:05" }}</small>
         <p style="color: #666; font-size: 0.9em; margin: 5px 0 15px 0">
-            {{ printf "%.100s" .Content }}{{ if gt (len .Content) 100 }}...{{
-            end }}
+            {{ $plainText := stripHTML .Content }} {{ printf "%.100s" $plainText
+            }}{{ if gt (len $plainText) 100 }}...{{ end }}
         </p>
     </li>
     {{ end }}

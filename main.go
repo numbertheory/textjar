@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -130,9 +131,22 @@ func main() {
 }
 
 func render(c *gin.Context, name string, data gin.H) {
-	tmpl := template.Must(template.ParseFiles("templates/base.html", "templates/"+name))
+	// Parse the layout and the requested template
+	tmpl := template.Must(template.New("base.html").Funcs(template.FuncMap{
+		"stripHTML": stripHTML,
+	}).ParseFiles("templates/base.html", "templates/"+name))
+
+	// Execute the base template, which will use the content block from the requested template
 	err := tmpl.Execute(c.Writer, data)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
 	}
+}
+
+func stripHTML(s string) string {
+	re := regexp.MustCompile("<[^>]*>")
+	plainText := re.ReplaceAllString(s, " ")
+	// Handle HTML entities like &nbsp; or &amp; if necessary,
+	// but for a simple preview, space-replacement is usually enough.
+	return strings.TrimSpace(plainText)
 }
