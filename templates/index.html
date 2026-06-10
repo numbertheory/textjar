@@ -1,12 +1,48 @@
 {{ define "content" }}
+<!-- Include Quill stylesheet -->
+<link
+    href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css"
+    rel="stylesheet"
+/>
+
 <h2>New Paste</h2>
-<form action="/save" method="POST">
-    <textarea
-        name="content"
-        rows="20"
-        placeholder="Enter your text here..."
-    ></textarea>
+<form id="paste-form" action="/save" method="POST">
+    <!-- Create the editor container -->
+    <div id="editor" style="height: 400px"></div>
+    <input type="hidden" name="content" id="content-input" />
     <br />
     <button type="submit">Save</button>
 </form>
+
+<!-- Include the Quill library -->
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+
+<!-- Initialize Quill editor -->
+<script>
+    const quill = new Quill("#editor", {
+        theme: "snow",
+        placeholder: "Enter your text here...",
+        modules: {
+            toolbar: [
+                [{ header: [1, 2, 3, false] }],
+                ["bold", "italic", "underline", "strike"],
+                ["blockquote", "code-block"],
+                [{ list: "ordered" }, { list: "bullet" }],
+                ["link", "clean"],
+            ],
+        },
+    });
+
+    const form = document.querySelector("#paste-form");
+    form.onsubmit = function () {
+        // Populate hidden input on submit
+        const content = document.querySelector("#content-input");
+        content.value = quill.getSemanticHTML();
+
+        if (content.value.trim() === "<p></p>" || content.value.trim() === "") {
+            alert("Please enter some content before saving.");
+            return false;
+        }
+    };
+</script>
 {{ end }}

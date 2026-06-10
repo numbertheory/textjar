@@ -119,8 +119,9 @@ func main() {
 		}
 
 		render(c, "view.html", gin.H{
-			"Title": "View Paste",
-			"Paste": paste,
+			"Title":   "View Paste",
+			"Paste":   paste,
+			"Content": template.HTML(paste.Content),
 		})
 	})
 

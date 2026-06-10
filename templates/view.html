@@ -1,10 +1,20 @@
 {{ define "content" }}
+<!-- Include Quill stylesheet for viewing to ensure styles match -->
+<link
+    href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css"
+    rel="stylesheet"
+/>
+
 <h2>View Paste: {{ .Paste.Slug }}</h2>
 <p>
     <small
         >Created at: {{ .Paste.CreatedAt.Format "2006-01-02 15:04:05" }}</small
     >
 </p>
-<pre>{{ .Paste.Content }}</pre>
-<p><a href="/recent">← Back to Recent Saves</a></p>
+
+<div class="ql-container ql-snow" style="border: none">
+    <div class="ql-editor" style="padding: 0">{{ .Content }}</div>
+</div>
+
+<p><br /><a href="/recent">← Back to Recent Saves</a></p>
 {{ end }}
