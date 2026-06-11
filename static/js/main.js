@@ -7,7 +7,10 @@ async function initEditor() {
   if (!container) return;
 
   const editor = await createEditor({
-    ...createFullPreset({ font: { fonts: STARTER_FONTS } }),
+    ...createFullPreset({
+      font: { fonts: STARTER_FONTS },
+      video: false,
+    }),
     theme: ThemePreset.Light,
     placeholder: "Enter your text here...",
     autofocus: true,
