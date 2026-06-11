@@ -7,6 +7,9 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 
+# Ensure the output directory exists
+RUN mkdir -p static/dist
+
 # Copy source and build
 COPY static/js ./static/js
 RUN npm run build
