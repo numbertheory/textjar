@@ -41,7 +41,7 @@ COPY static ./static
 COPY --from=node-builder /app/static/dist ./static/dist
 
 # Expose the port the app runs on
-EXPOSE 8080
+EXPOSE 3636
 
 # Run the application
 CMD ["./main"]

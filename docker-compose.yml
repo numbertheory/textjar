@@ -2,7 +2,7 @@ services:
   web:
     build: .
     ports:
-      - "8080:8080"
+      - "3636:3636"
     volumes:
       - textjar-data:/app/db
       - ./templates:/app/templates

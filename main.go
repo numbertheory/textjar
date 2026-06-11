@@ -229,8 +229,8 @@ func main() {
 		c.Redirect(http.StatusSeeOther, "/recent")
 	})
 
-	log.Println("Server starting on :8080")
-	r.Run(":8080")
+	log.Println("Server starting on :3636")
+	r.Run(":3636")
 }
 
 func render(c *gin.Context, name string, data gin.H) {
