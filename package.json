@@ -21,6 +21,7 @@
   "homepage": "https://github.com/numbertheory/textjar#readme",
   "dependencies": {
     "@notectl/core": "^2.2.1",
+    "date-fns": "^4.4.0",
     "esbuild": "^0.28.0"
   }
 }

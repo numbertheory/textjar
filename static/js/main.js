@@ -1,6 +1,7 @@
 import { createEditor, ThemePreset } from "@notectl/core";
 import { createFullPreset } from "@notectl/core/presets";
 import { STARTER_FONTS } from "@notectl/core/fonts";
+import { formatDistanceToNow, parseISO } from "date-fns";
 
 async function initEditor() {
   const container = document.getElementById("editor-container");
@@ -40,4 +41,20 @@ async function initEditor() {
   }
 }
 
+function initRelativeDates() {
+  const dateElements = document.querySelectorAll(".relative-date");
+  dateElements.forEach((el) => {
+    const isoDate = el.getAttribute("data-date");
+    if (isoDate) {
+      try {
+        const date = parseISO(isoDate);
+        el.textContent = formatDistanceToNow(date, { addSuffix: true });
+      } catch (e) {
+        console.error("Error parsing date:", e);
+      }
+    }
+  });
+}
+
 initEditor().catch(console.error);
+initRelativeDates();

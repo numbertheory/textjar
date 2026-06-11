@@ -1,48 +1,32 @@
 {{ define "content" }}
-<div
-    style="display: flex; justify-content: space-between; align-items: baseline"
->
-    <h2>View Paste: {{ .Paste.Slug }}</h2>
+<div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px;">
+    <h2 style="margin: 0;">View Paste: {{ .Paste.Slug }}</h2>
+    {{ if gt (len .Paste.Versions) 1 }}
     <div>
-        <small>Version {{ .SelectedVersion.Number }}</small>
+        <label for="version-select" style="font-size: 0.9em; color: #666;">Version:</label>
+        <select id="version-select" onchange="window.location.href='/view/{{ .Paste.Slug }}?v=' + this.value" style="padding: 2px 5px; border-radius: 4px; border: 1px solid #ddd; background: #fff; cursor: pointer;">
+            {{ $selectedNum := .SelectedVersion.Number }}
+            {{ range .Paste.Versions }}
+            <option value="{{ .Number }}" {{ if eq .Number $selectedNum }}selected{{ end }}>
+                {{ .Number }} {{ if eq .Number 1 }}(Original){{ end }}
+            </option>
+            {{ end }}
+        </select>
     </div>
+    {{ end }}
 </div>
 
-<p>
-    <small
-        >Created at: {{ .SelectedVersion.CreatedAt.Format "2006-01-02 15:04:05"
-        }}</small
-    >
+<p style="margin-top: 0;">
+    <small>
+        Created: <span class="relative-date" data-date="{{ .Paste.CreatedAt.Format "2006-01-02T15:04:05Z07:00" }}">{{ .Paste.CreatedAt.Format "2006-01-02 15:04:05" }}</span>
+        {{ if gt (len .Paste.Versions) 1 }}
+        | Last updated: <span class="relative-date" data-date="{{ .Paste.UpdatedAt.Format "2006-01-02T15:04:05Z07:00" }}">{{ .Paste.UpdatedAt.Format "2006-01-02 15:04:05" }}</span>
+        {{ end }}
+    </small>
 </p>
 
-<div class="content-view">{{ .Content }}</div>
-
-<div
-    class="version-history"
-    style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 15px"
->
-    <h3>Version History</h3>
-    <ul
-        style="
-            list-style: none;
-            padding: 0;
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        "
-    >
-        {{ $currentSlug := .Paste.Slug }} {{ $selectedNum :=
-        .SelectedVersion.Number }} {{ range .Paste.Versions }}
-        <li>
-            <a
-                href="/view/{{ $currentSlug }}?v={{ .Number }}"
-                style="text-decoration: none; padding: 5px 10px; border: 1px solid #ddd; border-radius: 4px; {{ if eq .Number $selectedNum }}background-color: #007bff; color: white; border-color: #007bff;{{ else }}background-color: #f8f8f8; color: #333;{{ end }}"
-            >
-                v{{ .Number }}
-            </a>
-        </li>
-        {{ end }}
-    </ul>
+<div class="content-view">
+    {{ .Content }}
 </div>
 
 <p><br /><a href="/recent">← Back to Recent Saves</a></p>

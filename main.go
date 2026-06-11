@@ -115,6 +115,10 @@ func main() {
 				Number:  lastVersion.Number + 1,
 			}
 			db.Create(&newVersion)
+
+			// Update the parent Paste's UpdatedAt timestamp
+			db.Model(&paste).Update("updated_at", gorm.Expr("CURRENT_TIMESTAMP"))
+
 			c.Redirect(http.StatusSeeOther, "/view/"+slug)
 		} else {
 			// New paste

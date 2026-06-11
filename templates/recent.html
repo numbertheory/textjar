@@ -5,6 +5,7 @@
     <thead>
         <tr>
             <th>Paste</th>
+            <th>Ver.</th>
             <th>Date</th>
             <th>Actions</th>
         </tr>
@@ -24,8 +25,11 @@
                 </p>
                 {{ end }}
             </td>
+            <td>
+                {{ len .Versions }}
+            </td>
             <td style="white-space: nowrap">
-                <small>{{ .UpdatedAt.Format "2006-01-02 15:04" }}</small>
+                <small class="relative-date" data-date="{{ .UpdatedAt.Format "2006-01-02T15:04:05Z07:00" }}">{{ .UpdatedAt.Format "2006-01-02 15:04" }}</small>
             </td>
             <td>
                 <div style="display: flex; gap: 5px">
