@@ -7,6 +7,7 @@ services:
       - textjar-data:/app/db
       - ./templates:/app/templates
       - ./static:/app/static
+      - /app/static/dist
     environment:
       - GIN_MODE=release
 volumes:

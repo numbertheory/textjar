@@ -1,0 +1,26 @@
+{
+  "name": "textjar",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "esbuild static/js/main.js --bundle --minify --outfile=static/dist/bundle.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/numbertheory/textjar.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/numbertheory/textjar/issues"
+  },
+  "homepage": "https://github.com/numbertheory/textjar#readme",
+  "dependencies": {
+    "@notectl/core": "^2.2.1",
+    "esbuild": "^0.28.0"
+  }
+}

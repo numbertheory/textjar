@@ -34,23 +34,56 @@ header h1 a::before {
     background-repeat: no-repeat;
 }
 
-.ql-editor img {
+notectl-editor {
+    display: block;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    min-height: 400px;
+    background: white;
+}
+
+.content-view blockquote {
+    border-left: 4px solid #ccc;
+    margin: 10px 0;
+    padding: 0 15px;
+    color: #666;
+}
+
+.content-view img {
     max-width: 100%;
     height: auto;
     border-radius: 4px;
     margin: 10px 0;
 }
 
-.ql-editor pre.ql-syntax {
-    background-color: #23241f;
-    color: #f8f8f2;
-    overflow: visible;
-    white-space: pre-wrap;
-    margin-bottom: 5px;
-    margin-top: 5px;
+.content-view pre {
+    background-color: #f4f4f4;
     padding: 10px 15px;
     border-radius: 4px;
     font-family: Monaco, Consolas, "Andale Mono", "Ubuntu Mono", monospace;
+    overflow-x: auto;
+}
+
+.content-view table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 10px 0;
+}
+
+.content-view th,
+.content-view td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.content-view th {
+    background-color: #f2f2f2;
+}
+
+.content-view ul,
+.content-view ol {
+    padding-left: 30px;
 }
 
 nav a {
