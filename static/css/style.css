@@ -222,6 +222,80 @@ button,
     background-color: #dc3545 !important;
 }
 
+/* Mobile Responsiveness */
+@media (max-width: 600px) {
+    body {
+        margin: 10px auto;
+        padding: 0 10px;
+    }
+
+    header h1 a {
+        font-size: 1.2em;
+    }
+
+    header h1 a::before {
+        width: 24px;
+        height: 24px;
+    }
+
+    nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    nav a {
+        margin-right: 0;
+        font-size: 0.9em;
+    }
+
+    article,
+    main {
+        padding: 15px;
+        border-radius: 8px;
+    }
+
+    .metadata h2 {
+        font-size: 1.4em;
+        word-break: break-all;
+    }
+
+    .metadata-info {
+        font-size: 0.75em;
+        line-height: 1.4;
+    }
+
+    /* Stack metadata header items */
+    .metadata > div {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .metadata h2 + .action-btn,
+    .metadata h2 + .btn {
+        align-self: flex-start;
+    }
+
+    /* Table responsive behavior */
+    table.recent-pastes {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    table.recent-pastes th,
+    table.recent-pastes td {
+        padding: 8px;
+        font-size: 0.85em;
+    }
+
+    /* Content view adjustments */
+    .content-view {
+        margin-top: 15px;
+        padding-top: 15px;
+    }
+}
+
 pre {
     background: #f4f4f4;
     padding: 15px;
