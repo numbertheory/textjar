@@ -34,6 +34,25 @@ header h1 a::before {
     background-repeat: no-repeat;
 }
 
+.ql-editor img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+    margin: 10px 0;
+}
+
+.ql-editor pre.ql-syntax {
+    background-color: #23241f;
+    color: #f8f8f2;
+    overflow: visible;
+    white-space: pre-wrap;
+    margin-bottom: 5px;
+    margin-top: 5px;
+    padding: 10px 15px;
+    border-radius: 4px;
+    font-family: Monaco, Consolas, "Andale Mono", "Ubuntu Mono", monospace;
+}
+
 nav a {
     margin-right: 15px;
     text-decoration: none;

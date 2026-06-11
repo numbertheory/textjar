@@ -8,7 +8,7 @@
 <h2>New Paste</h2>
 <form id="paste-form" action="/save" method="POST">
     <!-- Create the editor container -->
-    <div id="editor" style="height: 400px"></div>
+    <div id="editor" style="height: 500px"></div>
     <input type="hidden" name="content" id="content-input" />
     <br />
     <button type="submit">Save</button>
@@ -16,17 +16,42 @@
 
 <!-- Include the Quill library -->
 <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+<!-- Include Magic URL module -->
+<script src="https://cdn.jsdelivr.net/npm/quill-magic-url@4.2.0/dist/index.min.js"></script>
 
 <!-- Initialize Quill editor -->
 <script>
+    let magicUrlEnabled = false;
+    try {
+        // Version 4.x often uses QuillMagicUrl, Version 3.x uses MagicUrl
+        const module =
+            typeof QuillMagicUrl !== "undefined"
+                ? QuillMagicUrl
+                : typeof MagicUrl !== "undefined"
+                  ? MagicUrl
+                  : null;
+
+        if (module) {
+            Quill.register("modules/magicUrl", module);
+            magicUrlEnabled = true;
+        } else {
+            console.warn(
+                "MagicUrl module not found, auto-linking will be disabled.",
+            );
+        }
+    } catch (e) {
+        console.error("Error registering MagicUrl:", e);
+    }
+
     const quill = new Quill("#editor", {
         theme: "snow",
         placeholder: "Enter your text here...",
         modules: {
+            ...(magicUrlEnabled ? { magicUrl: true } : {}),
             toolbar: [
                 [{ header: [1, 2, 3, false] }],
                 ["bold", "italic", "underline", "strike"],
-                ["blockquote", "code-block"],
+                ["blockquote", "code-block", "image"],
                 [{ list: "ordered" }, { list: "bullet" }],
                 ["link", "clean"],
             ],
@@ -35,12 +60,11 @@
 
     const form = document.querySelector("#paste-form");
     form.onsubmit = function () {
-        // Populate hidden input on submit
         const content = document.querySelector("#content-input");
-        content.value = quill.getSemanticHTML();
+        content.value = quill.root.innerHTML;
 
-        if (content.value.trim() === "<p></p>" || content.value.trim() === "") {
-            alert("Please enter some content before saving.");
+        if (quill.getText().trim() === "" && !quill.root.querySelector("img")) {
+            alert("Please enter some content or an image before saving.");
             return false;
         }
     };
