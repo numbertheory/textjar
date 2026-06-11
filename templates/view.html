@@ -1,12 +1,49 @@
 {{ define "content" }}
-<h2>View Paste: {{ .Paste.Slug }}</h2>
+<div
+    style="display: flex; justify-content: space-between; align-items: baseline"
+>
+    <h2>View Paste: {{ .Paste.Slug }}</h2>
+    <div>
+        <small>Version {{ .SelectedVersion.Number }}</small>
+    </div>
+</div>
+
 <p>
     <small
-        >Created at: {{ .Paste.CreatedAt.Format "2006-01-02 15:04:05" }}</small
+        >Created at: {{ .SelectedVersion.CreatedAt.Format "2006-01-02 15:04:05"
+        }}</small
     >
 </p>
 
 <div class="content-view">{{ .Content }}</div>
+
+<div
+    class="version-history"
+    style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 15px"
+>
+    <h3>Version History</h3>
+    <ul
+        style="
+            list-style: none;
+            padding: 0;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        "
+    >
+        {{ $currentSlug := .Paste.Slug }} {{ $selectedNum :=
+        .SelectedVersion.Number }} {{ range .Paste.Versions }}
+        <li>
+            <a
+                href="/view/{{ $currentSlug }}?v={{ .Number }}"
+                style="text-decoration: none; padding: 5px 10px; border: 1px solid #ddd; border-radius: 4px; {{ if eq .Number $selectedNum }}background-color: #007bff; color: white; border-color: #007bff;{{ else }}background-color: #f8f8f8; color: #333;{{ end }}"
+            >
+                v{{ .Number }}
+            </a>
+        </li>
+        {{ end }}
+    </ul>
+</div>
 
 <p><br /><a href="/recent">← Back to Recent Saves</a></p>
 {{ end }}

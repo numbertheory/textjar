@@ -16,6 +16,11 @@ async function initEditor() {
     autofocus: true,
   });
 
+  const initialContentDiv = document.getElementById("initial-content");
+  if (initialContentDiv) {
+    await editor.setContentHTML(initialContentDiv.innerHTML);
+  }
+
   container.appendChild(editor);
 
   const form = document.querySelector("#paste-form");

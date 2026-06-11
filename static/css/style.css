@@ -107,22 +107,38 @@ table.recent-pastes th {
     letter-spacing: 0.05em;
 }
 
-.delete-btn {
+.action-btn {
     background: none;
     border: none;
-    color: #dc3545;
     cursor: pointer;
     padding: 5px;
     margin: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: color 0.2s;
+    transition:
+        color 0.2s,
+        background-color 0.2s;
+    border-radius: 4px;
+    text-decoration: none;
+}
+
+.delete-btn {
+    color: #dc3545;
 }
 
 .delete-btn:hover {
     color: #a71d2a;
-    background: none;
+    background-color: #fff5f5;
+}
+
+.edit-btn {
+    color: #28a745;
+}
+
+.edit-btn:hover {
+    color: #1e7e34;
+    background-color: #f6fff7;
 }
 
 nav a {

@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -17,11 +18,19 @@ import (
 	"gorm.io/gorm"
 )
 
-// Paste represents a saved snippet of text
+// Paste represents a group of versions identified by a slug
 type Paste struct {
 	gorm.Model
+	Slug     string         `gorm:"uniqueIndex"`
+	Versions []PasteVersion `gorm:"foreignKey:PasteID;constraint:OnDelete:CASCADE;"`
+}
+
+// PasteVersion represents a specific version of a paste's content
+type PasteVersion struct {
+	gorm.Model
+	PasteID uint
 	Content string `gorm:"type:text"`
-	Slug    string `gorm:"uniqueIndex"`
+	Number  int    // Version number (1, 2, 3...)
 }
 
 var db *gorm.DB
@@ -43,7 +52,7 @@ func initDB() {
 	}
 
 	// Automatically migrate the schema
-	db.AutoMigrate(&Paste{})
+	db.AutoMigrate(&Paste{}, &PasteVersion{})
 }
 
 func generateUniqueSlug() string {
@@ -82,24 +91,45 @@ func main() {
 
 	r.POST("/save", func(c *gin.Context) {
 		content := c.PostForm("content")
+		slug := c.PostForm("slug") // For edits
+
 		if content == "" {
 			c.Redirect(http.StatusSeeOther, "/")
 			return
 		}
 
-		slug := generateUniqueSlug()
-		paste := Paste{
-			Content: content,
-			Slug:    slug,
-		}
+		if slug != "" {
+			// Update existing paste (New Version)
+			var paste Paste
+			if err := db.Where("slug = ?", slug).First(&paste).Error; err != nil {
+				c.String(http.StatusNotFound, "Paste not found")
+				return
+			}
 
-		result := db.Create(&paste)
-		if result.Error != nil {
-			c.String(http.StatusInternalServerError, "Error saving paste")
-			return
-		}
+			var lastVersion PasteVersion
+			db.Where("paste_id = ?", paste.ID).Order("number desc").First(&lastVersion)
 
-		c.Redirect(http.StatusSeeOther, "/view/"+slug)
+			newVersion := PasteVersion{
+				PasteID: paste.ID,
+				Content: content,
+				Number:  lastVersion.Number + 1,
+			}
+			db.Create(&newVersion)
+			c.Redirect(http.StatusSeeOther, "/view/"+slug)
+		} else {
+			// New paste
+			slug = generateUniqueSlug()
+			paste := Paste{Slug: slug}
+			db.Create(&paste)
+
+			version := PasteVersion{
+				PasteID: paste.ID,
+				Content: content,
+				Number:  1,
+			}
+			db.Create(&version)
+			c.Redirect(http.StatusSeeOther, "/view/"+slug)
+		}
 	})
 
 	r.GET("/recent", func(c *gin.Context) {
@@ -116,7 +146,10 @@ func main() {
 		db.Model(&Paste{}).Count(&totalCount)
 
 		offset := (page - 1) * pageSize
-		db.Order("created_at desc").Offset(offset).Limit(pageSize).Find(&pastes)
+		// Join with versions to get the latest content for preview
+		db.Preload("Versions", func(db *gorm.DB) *gorm.DB {
+			return db.Order("paste_versions.number DESC")
+		}).Order("updated_at desc").Offset(offset).Limit(pageSize).Find(&pastes)
 
 		render(c, "recent.html", gin.H{
 			"Title":       "Recent Saves",
@@ -128,21 +161,61 @@ func main() {
 
 	r.GET("/view/:slug", func(c *gin.Context) {
 		slug := c.Param("slug")
+		versionStr := c.Query("v")
+
 		var paste Paste
-		if err := db.Where("slug = ?", slug).First(&paste).Error; err != nil {
+		if err := db.Preload("Versions", func(db *gorm.DB) *gorm.DB {
+			return db.Order("number desc")
+		}).Where("slug = ?", slug).First(&paste).Error; err != nil {
 			c.String(http.StatusNotFound, "Paste not found")
 			return
 		}
 
+		var selectedVersion PasteVersion
+		if versionStr != "" {
+			vNum, _ := strconv.Atoi(versionStr)
+			for _, v := range paste.Versions {
+				if v.Number == vNum {
+					selectedVersion = v
+					break
+				}
+			}
+		}
+
+		// Default to latest if not found or not specified
+		if selectedVersion.ID == 0 && len(paste.Versions) > 0 {
+			selectedVersion = paste.Versions[0]
+		}
+
 		render(c, "view.html", gin.H{
-			"Title":   "View Paste",
-			"Paste":   paste,
-			"Content": template.HTML(paste.Content),
+			"Title":           "View Paste",
+			"Paste":           paste,
+			"SelectedVersion": selectedVersion,
+			"Content":         template.HTML(selectedVersion.Content),
+		})
+	})
+
+	r.GET("/edit/:slug", func(c *gin.Context) {
+		slug := c.Param("slug")
+		var paste Paste
+		if err := db.Preload("Versions", func(db *gorm.DB) *gorm.DB {
+			return db.Order("number desc")
+		}).Where("slug = ?", slug).First(&paste).Error; err != nil {
+			c.String(http.StatusNotFound, "Paste not found")
+			return
+		}
+
+		render(c, "index.html", gin.H{
+			"Title": "Edit Paste: " + slug,
+			"Paste": paste,
+			// Load latest version content
+			"InitialContent": template.HTML(paste.Versions[0].Content),
 		})
 	})
 
 	r.POST("/delete/:slug", func(c *gin.Context) {
 		slug := c.Param("slug")
+		// GORM will handle deletion of versions due to OnDelete:CASCADE
 		result := db.Where("slug = ?", slug).Delete(&Paste{})
 		if result.Error != nil {
 			c.String(http.StatusInternalServerError, "Error deleting paste")

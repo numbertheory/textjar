@@ -1,12 +1,19 @@
 {{ define "content" }}
-<h2>New Paste</h2>
+<h2>{{ .Title }}</h2>
 <form id="paste-form" action="/save" method="POST">
+    {{ if .Paste }}
+    <input type="hidden" name="slug" value="{{ .Paste.Slug }}" />
+    {{ end }}
     <!-- Create the editor container -->
     <div id="editor-container" style="min-height: 500px"></div>
     <input type="hidden" name="content" id="content-input" />
     <br />
     <button type="submit">Save</button>
 </form>
+
+{{ if .InitialContent }}
+<div id="initial-content" style="display: none">{{ .InitialContent }}</div>
+{{ end }}
 
 <!-- Include the bundled editor JS -->
 <script src="/static/dist/bundle.js"></script>
