@@ -160,12 +160,33 @@ h3 {
 article,
 main {
     background: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border: 1px solid #eee;
 }
 
-textarea {
+.content-view {
+    margin-top: 20px;
+    padding-top: 25px;
+    border-top: 2px solid #e0e0e0;
+    line-height: 1.8;
+}
+
+.metadata {
+    margin-bottom: 15px;
+}
+
+.metadata h2 {
+    margin: 0;
+    font-size: 1.8em;
+}
+
+.metadata-info {
+    font-size: 0.85em;
+    color: #888;
+    margin-top: 4px;
+}
     width: 100%;
     box-sizing: border-box;
     padding: 10px;
