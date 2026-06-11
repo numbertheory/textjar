@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"html"
 	"html/template"
 	"log"
 	"net/http"
@@ -144,9 +145,15 @@ func render(c *gin.Context, name string, data gin.H) {
 }
 
 func stripHTML(s string) string {
+	// First strip HTML tags
 	re := regexp.MustCompile("<[^>]*>")
 	plainText := re.ReplaceAllString(s, " ")
-	// Handle HTML entities like &nbsp; or &amp; if necessary,
-	// but for a simple preview, space-replacement is usually enough.
-	return strings.TrimSpace(plainText)
+
+	// Decode HTML entities (e.g., &nbsp; -> space, &amp; -> &)
+	decoded := html.UnescapeString(plainText)
+
+	// Replace non-breaking spaces with normal spaces explicitly if UnescapeString leaves them as \u00a0
+	decoded = strings.ReplaceAll(decoded, "\u00a0", " ")
+
+	return strings.TrimSpace(decoded)
 }
