@@ -141,6 +141,16 @@ func main() {
 		})
 	})
 
+	r.POST("/delete/:slug", func(c *gin.Context) {
+		slug := c.Param("slug")
+		result := db.Where("slug = ?", slug).Delete(&Paste{})
+		if result.Error != nil {
+			c.String(http.StatusInternalServerError, "Error deleting paste")
+			return
+		}
+		c.Redirect(http.StatusSeeOther, "/recent")
+	})
+
 	log.Println("Server starting on :8080")
 	r.Run(":8080")
 }
