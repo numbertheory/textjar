@@ -11,6 +11,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/glebarez/sqlite"
@@ -116,8 +117,8 @@ func main() {
 			}
 			db.Create(&newVersion)
 
-			// Update the parent Paste's UpdatedAt timestamp
-			db.Model(&paste).Update("updated_at", gorm.Expr("CURRENT_TIMESTAMP"))
+			// Update the parent Paste's UpdatedAt timestamp using time.Now()
+			db.Model(&paste).Update("updated_at", time.Now())
 
 			c.Redirect(http.StatusSeeOther, "/view/"+slug)
 		} else {
@@ -153,7 +154,7 @@ func main() {
 		// Join with versions to get the latest content for preview
 		db.Preload("Versions", func(db *gorm.DB) *gorm.DB {
 			return db.Order("paste_versions.number DESC")
-		}).Order("updated_at desc").Offset(offset).Limit(pageSize).Find(&pastes)
+		}).Order("pastes.updated_at DESC").Offset(offset).Limit(pageSize).Find(&pastes)
 
 		render(c, "recent.html", gin.H{
 			"Title":       "Recent Saves",
