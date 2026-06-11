@@ -4,7 +4,7 @@
 <ul>
     {{ range .Pastes }}
     <li>
-        <a href="/view/{{ .Slug }}">Paste {{ .Slug }}</a> -
+        <a href="/view/{{ .Slug }}">{{ .Slug }}</a> -
 
         <small>{{ .CreatedAt.Format "2006-01-02 15:04:05" }}</small>
         <p style="color: #666; font-size: 0.9em; margin: 5px 0 15px 0">
@@ -14,6 +14,15 @@
     </li>
     {{ end }}
 </ul>
+
+<div class="pagination" style="margin-top: 20px">
+    {{ if gt .CurrentPage 1 }}
+    <a href="/recent?page={{ (add .CurrentPage -1) }}">← Newer</a>
+    {{ end }} {{ if and (gt .CurrentPage 1) .HasMore }} | {{ end }} {{ if
+    .HasMore }}
+    <a href="/recent?page={{ (add .CurrentPage 1) }}">Older →</a>
+    {{ end }}
+</div>
 {{ else }}
 <p>No pastes yet. <a href="/">Create one!</a></p>
 {{ end }} {{ end }}

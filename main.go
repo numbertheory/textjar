@@ -103,12 +103,26 @@ func main() {
 	})
 
 	r.GET("/recent", func(c *gin.Context) {
+		const pageSize = 25
+		pageStr := c.DefaultQuery("page", "1")
+		var page int
+		fmt.Sscanf(pageStr, "%d", &page)
+		if page < 1 {
+			page = 1
+		}
+
 		var pastes []Paste
-		db.Order("created_at desc").Limit(20).Find(&pastes)
+		var totalCount int64
+		db.Model(&Paste{}).Count(&totalCount)
+
+		offset := (page - 1) * pageSize
+		db.Order("created_at desc").Offset(offset).Limit(pageSize).Find(&pastes)
 
 		render(c, "recent.html", gin.H{
-			"Title":  "Recent Saves",
-			"Pastes": pastes,
+			"Title":       "Recent Saves",
+			"Pastes":      pastes,
+			"CurrentPage": page,
+			"HasMore":     int64(offset+pageSize) < totalCount,
 		})
 	})
 
@@ -135,6 +149,9 @@ func render(c *gin.Context, name string, data gin.H) {
 	// Parse the layout and the requested template
 	tmpl := template.Must(template.New("base.html").Funcs(template.FuncMap{
 		"stripHTML": stripHTML,
+		"add": func(a, b int) int {
+			return a + b
+		},
 	}).ParseFiles("templates/base.html", "templates/"+name))
 
 	// Execute the base template, which will use the content block from the requested template
