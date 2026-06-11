@@ -3,21 +3,57 @@ import { createFullPreset } from "@notectl/core/presets";
 import { STARTER_FONTS } from "@notectl/core/fonts";
 import { formatDistanceToNow, parseISO } from "date-fns";
 
-// Polyfill for crypto.randomUUID in non-secure contexts (e.g. http access via IP)
-if (
-  typeof window !== "undefined" &&
-  window.crypto &&
-  !window.crypto.randomUUID
-) {
-  window.crypto.randomUUID = function () {
-    return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, (c) =>
-      (
-        c ^
-        (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))
-      ).toString(16),
-    );
-  };
-}
+// Robust Polyfill for crypto.randomUUID in non-secure contexts
+(function () {
+  const g =
+    typeof globalThis !== "undefined"
+      ? globalThis
+      : typeof window !== "undefined"
+        ? window
+        : {};
+  if (!g.crypto) g.crypto = g.msCrypto || {};
+
+  const crypto = g.crypto;
+
+  // Fallback for getRandomValues if it's also missing in very restrictive contexts
+  if (!crypto.getRandomValues) {
+    crypto.getRandomValues = function (array) {
+      for (let i = 0; i < array.length; i++) {
+        array[i] = Math.floor(Math.random() * 256);
+      }
+      return array;
+    };
+  }
+
+  if (!crypto.randomUUID) {
+    try {
+      Object.defineProperty(crypto, "randomUUID", {
+        value: function () {
+          return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, (c) =>
+            (
+              c ^
+              (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))
+            ).toString(16),
+          );
+        },
+        writable: true,
+        configurable: true,
+      });
+    } catch (e) {
+      // Fallback to direct assignment if defineProperty fails
+      crypto.randomUUID = function () {
+        return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
+          /[xy]/g,
+          function (c) {
+            var r = (Math.random() * 16) | 0,
+              v = c == "x" ? r : (r & 0x3) | 0x8;
+            return v.toString(16);
+          },
+        );
+      };
+    }
+  }
+})();
 
 async function initEditor() {
   const container = document.getElementById("editor-container");
