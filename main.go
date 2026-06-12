@@ -13,9 +13,10 @@ import (
 	"strings"
 	"time"
 
+	"math/rand"
+
 	"github.com/gin-gonic/gin"
 	"github.com/glebarez/sqlite"
-	"github.com/go-faker/faker/v4"
 	"gorm.io/gorm"
 )
 
@@ -35,6 +36,7 @@ type PasteVersion struct {
 }
 
 var db *gorm.DB
+var wordList []string
 
 func initDB() {
 	dbPath := "db/textjar.db"
@@ -54,14 +56,35 @@ func initDB() {
 
 	// Automatically migrate the schema
 	db.AutoMigrate(&Paste{}, &PasteVersion{})
+
+	// Load words for slug generation
+	loadWords()
+}
+
+func loadWords() {
+	content, err := os.ReadFile("templates/words.txt")
+	if err != nil {
+		log.Println("Warning: templates/words.txt not found, falling back to simple slugs")
+		wordList = []string{"paste", "note", "text"}
+		return
+	}
+
+	lines := strings.Split(string(content), "\n")
+	for _, line := range lines {
+		word := strings.ToLower(strings.TrimSpace(line))
+		if word != "" {
+			wordList = append(wordList, word)
+		}
+	}
 }
 
 func generateUniqueSlug() string {
 	for {
-		slug := fmt.Sprintf("%s-%s-%s",
-			strings.ToLower(faker.Word()),
-			strings.ToLower(faker.Word()),
-			strings.ToLower(faker.Word()))
+		var parts []string
+		for i := 0; i < 3; i++ {
+			parts = append(parts, wordList[rand.Intn(len(wordList))])
+		}
+		slug := strings.Join(parts, "-")
 
 		var count int64
 		db.Model(&Paste{}).Where("slug = ?", slug).Count(&count)
