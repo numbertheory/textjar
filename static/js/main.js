@@ -1,7 +1,26 @@
 import { createEditor, ThemePreset } from "@notectl/core";
 import { createFullPreset } from "@notectl/core/presets";
-import { STARTER_FONTS } from "@notectl/core/fonts";
 import { formatDistanceToNow, parseISO } from "date-fns";
+
+const SYSTEM_FONTS = [
+  { name: "Arial", family: "Arial, sans-serif", category: "sans-serif" },
+  {
+    name: "Helvetica",
+    family: "Helvetica, sans-serif",
+    category: "sans-serif",
+  },
+  { name: "Georgia", family: "Georgia, serif", category: "serif" },
+  {
+    name: "Times New Roman",
+    family: "'Times New Roman', serif",
+    category: "serif",
+  },
+  {
+    name: "Courier New",
+    family: "'Courier New', monospace",
+    category: "monospace",
+  },
+];
 
 // Robust Polyfill for crypto.randomUUID in non-secure contexts
 (function () {
@@ -60,7 +79,7 @@ async function initEditor() {
   if (!container) return;
 
   const fullPreset = createFullPreset({
-    font: { fonts: STARTER_FONTS },
+    font: { fonts: SYSTEM_FONTS },
   });
 
   const customToolbar = fullPreset.toolbar
