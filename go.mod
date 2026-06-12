@@ -5,7 +5,6 @@ go 1.26.4
 require (
 	github.com/gin-gonic/gin v1.12.0
 	github.com/glebarez/sqlite v1.11.0
-	github.com/go-faker/faker/v4 v4.7.0
 	gorm.io/gorm v1.25.7
 )
 
