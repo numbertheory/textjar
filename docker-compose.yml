@@ -5,6 +5,7 @@ services:
       - "3636:3636"
     volumes:
       - textjar-data:/app/db
+      - textjar-photos:/app/photos
       - ./templates:/app/templates
       - ./static:/app/static
       - /app/static/dist
@@ -12,3 +13,4 @@ services:
       - GIN_MODE=release
 volumes:
   textjar-data:
+  textjar-photos:

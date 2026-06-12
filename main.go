@@ -40,11 +40,18 @@ var wordList []string
 
 func initDB() {
 	dbPath := "db/textjar.db"
+	photosPath := "photos"
 
 	// Ensure the db directory exists
 	err := os.MkdirAll(filepath.Dir(dbPath), 0755)
 	if err != nil {
 		log.Fatal("Failed to create data directory:", err)
+	}
+
+	// Ensure the photos directory exists
+	err = os.MkdirAll(photosPath, 0755)
+	if err != nil {
+		log.Fatal("Failed to create photos directory:", err)
 	}
 
 	// Initialize SQLite database
@@ -105,12 +112,49 @@ func main() {
 
 	// Serve static files
 	r.Static("/static", "./static")
+	r.Static("/photos-data", "./photos")
 
 	// Routes
 	r.GET("/", func(c *gin.Context) {
 		render(c, "index.html", gin.H{
-			"Title": "New Paste",
+			"Title": "Text",
 		})
+	})
+
+	r.GET("/photos", func(c *gin.Context) {
+		files, _ := os.ReadDir("photos")
+		var photoNames []string
+		for _, file := range files {
+			if !file.IsDir() {
+				photoNames = append(photoNames, file.Name())
+			}
+		}
+
+		render(c, "photos.html", gin.H{
+			"Title":  "Photos",
+			"Photos": photoNames,
+		})
+	})
+
+	r.POST("/photos/upload", func(c *gin.Context) {
+		form, err := c.MultipartForm()
+		if err != nil {
+			c.String(http.StatusBadRequest, "Get form err: %s", err.Error())
+			return
+		}
+		files := form.File["photos"]
+
+		for _, file := range files {
+			filename := filepath.Base(file.Filename)
+			// Add timestamp to prevent name collisions
+			newFilename := fmt.Sprintf("%d_%s", time.Now().UnixNano(), filename)
+			if err := c.SaveUploadedFile(file, filepath.Join("photos", newFilename)); err != nil {
+				c.String(http.StatusBadRequest, "Upload file err: %s", err.Error())
+				return
+			}
+		}
+
+		c.Redirect(http.StatusSeeOther, "/photos")
 	})
 
 	r.POST("/save", func(c *gin.Context) {
