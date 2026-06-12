@@ -1,30 +1,73 @@
 {{ define "content" }}
 <div class="photos-container">
-    <div class="metadata">
-        <h2>Photos</h2>
-        <p class="metadata-info">Your saved images.</p>
-    </div>
+    <div
+        class="photos-header"
+        style="
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 30px;
+        "
+    >
+        <div class="metadata" style="margin-bottom: 0">
+            <h2>Photos</h2>
+            <p class="metadata-info">Your saved images.</p>
+        </div>
 
-    <article style="margin-bottom: 40px">
         <form
             action="/photos/upload"
             method="post"
             enctype="multipart/form-data"
+            id="upload-form"
         >
-            <div class="form-group">
+            <div style="display: flex; gap: 10px; align-items: center">
                 <label
                     for="photo-upload"
                     class="btn btn-outline"
                     style="
                         cursor: pointer;
-                        display: block;
-                        padding: 40px;
+                        width: 100px;
+                        height: 100px;
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: center;
+                        align-items: center;
                         border: 2px dashed rgba(0, 0, 0, 0.1);
+                        padding: 0;
+                        margin: 0;
+                        font-size: 0.8em;
                         text-align: center;
+                        line-height: 1.2;
                     "
                 >
-                    <span id="file-name"
-                        >Click to select photos or drag and drop</span
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        style="margin-bottom: 5px"
+                    >
+                        <path
+                            d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
+                        ></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                    <span
+                        id="file-name"
+                        style="
+                            padding: 0 5px;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            white-space: nowrap;
+                            max-width: 90px;
+                        "
+                        >Select</span
                     >
                     <input
                         type="file"
@@ -33,23 +76,12 @@
                         multiple
                         accept="image/*"
                         style="display: none"
-                        onchange="updateFileName(this)"
+                        onchange="autoUpload(this)"
                     />
                 </label>
             </div>
-            <div
-                style="
-                    margin-top: 20px;
-                    display: flex;
-                    justify-content: flex-end;
-                "
-            >
-                <button type="submit" class="btn btn-primary">
-                    Upload Photos
-                </button>
-            </div>
         </form>
-    </article>
+    </div>
 
     {{ if .Photos }}
     <div
@@ -60,7 +92,7 @@
             gap: 20px;
         "
     >
-        {{ range .Photos }}
+        {{ range $index, $photo := .Photos }}
         <div
             class="photo-item"
             style="
@@ -68,10 +100,12 @@
                 padding: 10px;
                 border-radius: 10px;
                 box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+                cursor: pointer;
             "
+            onclick="openLightbox({{ $index }})"
         >
             <img
-                src="/photos-data/{{ . }}"
+                src="/photos-data/{{ $photo }}"
                 alt="Photo"
                 style="
                     width: 100%;
@@ -83,6 +117,129 @@
         </div>
         {{ end }}
     </div>
+
+    {{ if gt .TotalPages 1 }}
+    <div
+        class="pagination"
+        style="
+            margin-top: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+        "
+    >
+        {{ if .HasPrev }}
+        <a href="/photos?page={{ .PrevPage }}" class="btn btn-outline"
+            >&larr; Previous</a
+        >
+        {{ else }}
+        <button class="btn btn-outline" disabled>&larr; Previous</button>
+        {{ end }}
+
+        <span class="page-info"
+            >Page {{ .CurrentPage }} of {{ .TotalPages }}</span
+        >
+
+        {{ if .HasNext }}
+        <a href="/photos?page={{ .NextPage }}" class="btn btn-outline"
+            >Next &rarr;</a
+        >
+        {{ else }}
+        <button class="btn btn-outline" disabled>Next &rarr;</button>
+        {{ end }}
+    </div>
+    {{ end }}
+
+    <!-- Lightbox Overlay -->
+    <div
+        id="lightbox"
+        style="
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        "
+    >
+        <span
+            onclick="closeLightbox()"
+            style="
+                position: absolute;
+                top: 20px;
+                right: 30px;
+                color: white;
+                font-size: 40px;
+                cursor: pointer;
+                z-index: 1001;
+            "
+            >&times;</span
+        >
+
+        <div
+            style="
+                position: relative;
+                width: 90%;
+                height: 80%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            "
+        >
+            <button
+                onclick="prevPhoto()"
+                style="
+                    position: absolute;
+                    left: -20px;
+                    background: none;
+                    border: none;
+                    color: white;
+                    font-size: 50px;
+                    cursor: pointer;
+                    padding: 20px;
+                "
+            >
+                &#10094;
+            </button>
+            <img
+                id="lightbox-img"
+                src=""
+                style="
+                    max-width: 100%;
+                    max-height: 100%;
+                    object-fit: contain;
+                    border-radius: 5px;
+                "
+            />
+            <button
+                onclick="nextPhoto()"
+                style="
+                    position: absolute;
+                    right: -20px;
+                    background: none;
+                    border: none;
+                    color: white;
+                    font-size: 50px;
+                    cursor: pointer;
+                    padding: 20px;
+                "
+            >
+                &#10095;
+            </button>
+        </div>
+
+        <div
+            id="lightbox-caption"
+            style="color: white; margin-top: 20px; font-size: 1.1em"
+        ></div>
+    </div>
+
     {{ else }}
     <p style="text-align: center; color: var(--text-muted); padding: 40px">
         No photos uploaded yet.
@@ -90,20 +247,61 @@
     {{ end }}
 
     <script>
-        function updateFileName(input) {
-            const fileName = document.getElementById("file-name");
+        function autoUpload(input) {
             if (input.files.length > 0) {
-                if (input.files.length === 1) {
-                    fileName.textContent = input.files[0].name;
-                } else {
-                    fileName.textContent =
-                        input.files.length + " files selected";
-                }
-            } else {
-                fileName.textContent =
-                    "Click to select photos or drag and drop";
+                document.getElementById('upload-form').submit();
             }
         }
+
+        const photos = [
+            {{ range .Photos }}
+            "/photos-data/{{ . }}",
+            {{ end }}
+        ];
+
+        let currentIndex = 0;
+
+        function openLightbox(index) {
+            currentIndex = index;
+            updateLightbox();
+            document.getElementById('lightbox').style.display = 'flex';
+            document.body.style.overflow = 'hidden'; // Disable scroll
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightbox').style.display = 'none';
+            document.body.style.overflow = 'auto'; // Re-enable scroll
+        }
+
+        function updateLightbox() {
+            const img = document.getElementById('lightbox-img');
+            img.src = photos[currentIndex];
+
+            // Extract original filename from timestamped version for the caption
+            const fullPath = photos[currentIndex];
+            const filename = fullPath.split('/').pop();
+            const originalName = filename.substring(filename.indexOf('_') + 1);
+            document.getElementById('lightbox-caption').textContent = originalName;
+        }
+
+        function nextPhoto() {
+            currentIndex = (currentIndex + 1) % photos.length;
+            updateLightbox();
+        }
+
+        function prevPhoto() {
+            currentIndex = (currentIndex - 1 + photos.length) % photos.length;
+            updateLightbox();
+        }
+
+        // Keyboard navigation for lightbox
+        document.addEventListener('keydown', function(e) {
+            if (document.getElementById('lightbox').style.display === 'flex') {
+                if (e.key === "ArrowRight") nextPhoto();
+                if (e.key === "ArrowLeft") prevPhoto();
+                if (e.key === "Escape") closeLightbox();
+            }
+        });
     </script>
 </div>
 {{ end }}

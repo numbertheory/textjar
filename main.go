@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -130,9 +131,43 @@ func main() {
 			}
 		}
 
+		// Sort photos by name (timestamp prefix) in descending order to show newest first
+		sort.Slice(photoNames, func(i, j int) bool {
+			return photoNames[i] > photoNames[j]
+		})
+
+		// Pagination logic
+		pageSize := 25
+		pageStr := c.DefaultQuery("page", "1")
+		page, err := strconv.Atoi(pageStr)
+		if err != nil || page < 1 {
+			page = 1
+		}
+
+		totalPhotos := len(photoNames)
+		totalPages := (totalPhotos + pageSize - 1) / pageSize
+
+		start := (page - 1) * pageSize
+		end := start + pageSize
+
+		if start > totalPhotos {
+			start = totalPhotos
+		}
+		if end > totalPhotos {
+			end = totalPhotos
+		}
+
+		paginatedPhotos := photoNames[start:end]
+
 		render(c, "photos.html", gin.H{
-			"Title":  "Photos",
-			"Photos": photoNames,
+			"Title":       "Photos",
+			"Photos":      paginatedPhotos,
+			"CurrentPage": page,
+			"TotalPages":  totalPages,
+			"NextPage":    page + 1,
+			"PrevPage":    page - 1,
+			"HasNext":     page < totalPages,
+			"HasPrev":     page > 1,
 		})
 	})
 
