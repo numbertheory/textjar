@@ -1,3 +1,4 @@
+{{ define "content" }}
 <div class="metadata">
     <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; flex-wrap: wrap;">
         <div style="flex: 1; min-width: 200px;">
@@ -8,8 +9,7 @@
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                         <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                    </svg>
-                    Edit
+                    </svg>Edit
                 </a>
                 {{ else }}
                 <span class="btn btn-ghosted" style="padding: 6px 12px;" title="Only the latest version can be edited">
@@ -21,6 +21,7 @@
                 </span>
                 {{ end }}
             </div>
+            <div class="metadata-info" style="margin-top: 5px;">
                 Created: <span class="relative-date" data-date="{{ .Paste.CreatedAt.Format "2006-01-02T15:04:05Z07:00" }}">{{ .Paste.CreatedAt.Format "2006-01-02 15:04:05" }}</span>
                 {{ if gt (len .Paste.Versions) 1 }}
                 | Last updated: <span class="relative-date" data-date="{{ .Paste.UpdatedAt.Format "2006-01-02T15:04:05Z07:00" }}">{{ .Paste.UpdatedAt.Format "2006-01-02 15:04:05" }}</span>
