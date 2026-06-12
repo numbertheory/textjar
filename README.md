@@ -1,13 +1,13 @@
 # TextJar
 
-TextJar is a simple, lightweight self-hosted pastebin application built with **Go** and the **notectl** rich-text editor. It supports versioning, image uploads, and clean formatting, making it ideal for internal notes and snippets.
+TextJar is a simple, lightweight self-hosted pastebin application built with **Go** and the **notectl** rich-text editor. It supports versioning and clean formatting, making it ideal for internal notes and snippets.
 
 > [!WARNING]
 > **No Authentication:** This application does not currently have a login system or authentication. It is designed for use on a **Local Area Network (LAN)** or via a VPN. **Do not expose this application directly to the public internet.**
 
 ## Features
 
-- **Rich Text Editor:** Powered by `notectl` with support for formatting, tables, and images.
+- **Rich Text Editor:** Powered by `notectl` with support for formatting and tables.
 - **Versioning:** Every edit creates a new version, allowing you to track history.
 - **Relative Timestamps:** See exactly when a paste was created or last updated (e.g., "5 minutes ago").
 - **Automatic Slugs:** Generates unique, memorable URLs (e.g., `apple-banana-cherry`).

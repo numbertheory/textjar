@@ -59,11 +59,19 @@ async function initEditor() {
   const container = document.getElementById("editor-container");
   if (!container) return;
 
+  const fullPreset = createFullPreset({
+    font: { fonts: STARTER_FONTS },
+  });
+
+  const customToolbar = fullPreset.toolbar
+    .map((group) =>
+      group.filter((plugin) => plugin.id !== "image" && plugin.id !== "video"),
+    )
+    .filter((group) => group.length > 0);
+
   const editor = await createEditor({
-    ...createFullPreset({
-      font: { fonts: STARTER_FONTS },
-      video: false,
-    }),
+    toolbar: customToolbar,
+    plugins: fullPreset.plugins,
     theme: ThemePreset.Light,
     placeholder: "Enter your text here...",
     autofocus: true,
