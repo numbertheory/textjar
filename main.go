@@ -12,6 +12,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	v1 "textjar/api/v1"
 	"time"
 
 	"math/rand"
@@ -110,6 +111,9 @@ func main() {
 
 	// Set trusted proxies to nil to resolve the security warning.
 	r.SetTrustedProxies(nil)
+
+	// Register API routes
+	v1.RegisterRoutes(&r.RouterGroup)
 
 	// Serve static files
 	r.Static("/static", "./static")
