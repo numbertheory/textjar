@@ -47,3 +47,4 @@ data/
 *.db-journal
 *.db-shm
 *.db-wal
+photos/

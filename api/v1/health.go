@@ -11,6 +11,7 @@ func RegisterRoutes(rg *gin.RouterGroup) {
 	api := rg.Group("/v1/api")
 	{
 		api.GET("/health", healthCheck)
+		api.POST("/photos", uploadPhotos)
 	}
 }
 
